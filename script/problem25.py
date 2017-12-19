@@ -67,17 +67,17 @@ def main():
     reading = sys.stdin.readlines()
 
     observation = reading[0].strip()
-    observedChar =reading[2].strip().split('\t')
-    states = reading[4].strip().split('\t')
+    observedChar =reading[2].strip().split()
+    states = reading[4].strip().split()
 
     transition = []
     for i in reading[7:7 + len(states)]:
-        transition.append(i.strip().split('\t')[1:])
+        transition.append(i.strip().split()[1:])
     transition = np.asanyarray(transition)
     transition = transition.astype(np.float)
     emission = []
     for i in reading[9 + len(states):9 + 2*len(states)]:
-        emission.append(i.strip().split('\t')[1:])
+        emission.append(i.strip().split()[1:])
     emission = np.asanyarray(emission)
     emission = emission.astype(np.float)
 

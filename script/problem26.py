@@ -129,18 +129,22 @@ def main():
     reading = sys.stdin.readlines()
     itteration = reading[0].strip()
     observation = reading[2].strip()
-    observedChar =reading[4].strip().split('\t')
-    states = reading[6].strip().split('\t')
+    observedChar =reading[4].strip().split()
+    states = reading[6].strip().split()
 
     transition = []
     for i in reading[9:9 + len(states)]:
-        transition.append(i.strip().split('\t')[1:])
+        transition.append(i.strip().split()[1:])
+    if transition[-1] == []: # there is a space in your input file, which I pop it out here
+        transition.pop # there is a space in your input file, which I pop it out here
     transition = np.asanyarray(transition)
     transition = transition.astype(np.float)
 
     emission = []
     for i in reading[11 + len(states):11 + 2*len(states)]:
-        emission.append(i.strip().split('\t')[1:])
+        emission.append(i.strip().split()[1:])
+    if emission[-1] == []: # there is a space in your input file, which I pop it out here
+        emission.pop # there is a space in your input file, which I pop it out here
     emission = np.asanyarray(emission)
     emission = emission.astype(np.float)
 
@@ -169,15 +173,24 @@ def main():
         nodeRes = V.softDecoding()
         er = BaumWelch(forwardMatrix = forward, backwardMatrix = backward, states = states, observation= observation, transition = initTransition, emission = initEmission, nodeRes = nodeRes, observedChar = observedChar)
         initTransition, initEmission = er.redefineParameters()
+
     sys.stdout.write('\t' + '\t'.join(map(str, states)) + "\n")
-    for key, values in initTransition.items():
-        values = list(values.values())
-        sys.stdout.write(key + "\t" + '\t'.join(map(str, ['%.3f'%x for x in values])) + "\n")
+    for key in states:
+        sys.stdout.write(key)
+        for insideKey in states:
+            value = initTransition[key][insideKey]
+            sys.stdout.write( "\t" + '%.3f'%value)
+        sys.stdout.write( "\n")
     sys.stdout.write('--------' + '\n')
+
     sys.stdout.write('\t' + '\t'.join(map(str, observedChar)) + "\n")
-    for key, values in initEmission.items():
-        values = list(values.values())
-        sys.stdout.write(key + "\t" + '\t'.join(map(str, ['%.3f'%x for x in values])) + "\n")
+    for key in states:
+        sys.stdout.write(key)
+        for insideKey in observedChar:
+            value = initEmission[key][insideKey]
+            sys.stdout.write( "\t" + '%.3f'%value)
+        sys.stdout.write( "\n")
+
 
 
 

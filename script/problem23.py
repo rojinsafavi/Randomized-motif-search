@@ -22,9 +22,9 @@ class RosalindParse(object):
         infile = self.inputFile
         readInput = infile.readlines()
         observedSeq = readInput[0].strip()
-        observedChar = readInput[2].strip().split('\t')
+        observedChar = readInput[2].strip().split()
         stateSeq = readInput[4].strip()
-        states = readInput[6].strip().split('\t')
+        states = readInput[6].strip().split()
         return observedSeq, observedChar, stateSeq, states
 
 class ParaEstimation(object):
@@ -136,7 +136,7 @@ class ParaEstimation(object):
                     transition[k][kk] = vv/stateCount[k] # do the divission to find the probability
             elif sum(list(v.values())) == 0:# if the sum of values in the v at not zero
                 for kk,vv in v.items():
-                    transition[k][kk] = 1/len(self.states) # just devide by the number of states 
+                    transition[k][kk] = 1/len(self.states) # just devide by the number of states
         return transition
 
 
@@ -160,10 +160,10 @@ class OutputFormat(object):
     def outputParsing(self):
         '''STDOUT the output'''
         sys.stdout.write("\t" + '\t'.join(map(str, self.states)) + "\n")
-        for key, values in self.transition.items():
-            values = list(values.values())
+        for key in self.states:
             sys.stdout.write(key)
-            for element in values:
+            for insideKey in self.states:
+                element = self.transition[key][insideKey]
                 if element == 0:
                     sys.stdout.write('\t' + str(int(element)))
                 else:
@@ -173,10 +173,10 @@ class OutputFormat(object):
         sys.stdout.write('--------' + '\n')
 
         sys.stdout.write('\t' + '\t'.join(map(str, self.observedChar)) + "\n")
-        for key, values in self.emission.items():
-            values = list(values.values())
+        for key in self.states:
             sys.stdout.write(key)
-            for element in values:
+            for insideKey in self.observedChar:
+                element = self.emission[key][insideKey]
                 if element == 0:
                     sys.stdout.write('\t' + str(int(element)))
                 else:

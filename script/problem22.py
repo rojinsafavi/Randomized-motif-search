@@ -141,9 +141,8 @@ class SequenceAlignment(object):
         lastProb = l[p]
         prevState = q
 
-
         orderedList.append(prevState)
-        prevProb = lastProb
+        #prevProb = lastProb
 
         column = len(self.string)
         row = self.rowsNum -1
@@ -151,6 +150,8 @@ class SequenceAlignment(object):
         # backtracking
         while column != 0:
             if 'M' in prevState:
+                if type(self.MM[row][column]) is not tuple:
+                    break
                 prevState = self.MM[row][column][0]
                 if prevState == 'S':
                     break
@@ -158,18 +159,23 @@ class SequenceAlignment(object):
                 column -=1
 
             elif 'D' in prevState:
+                if type(self.DD[row][column]) is not tuple:
+                    break
                 prevState = self.DD[row][column][0]
                 if prevState == 'S':
                     break
                 row =int(prevState[1:])
 
             elif 'I' in prevState:
+                if type(self.II[row][column]) is not tuple:
+                    break
                 prevState = self.II[row][column][0]
                 if prevState == 'S':
                     break
                 row =int(prevState[1:])
                 column -=1
             orderedList.append(prevState)
+
         return orderedList
 
 class RosalindParse(object):
@@ -181,10 +187,10 @@ class RosalindParse(object):
         infile = self.inputFile
         readInput = infile.readlines()
         string = readInput[0].strip()
-        theta = float(readInput[2].split('\t')[0])
-        pseu = float(readInput[2].split('\t')[1].strip())
+        theta = float(readInput[2].split()[0])
+        pseu = float(readInput[2].split()[1].strip())
         observations = [x.strip() for x in readInput[6:]]
-        observedChar = readInput[4].strip().split('\t')
+        observedChar = readInput[4].strip().split()
         return string, theta, observations, observedChar, pseu
 
 def main():
@@ -195,7 +201,7 @@ def main():
     emission = h.emissionProb()
     j = SequenceAlignment(string= string, pseu= pseu, theta= theta, alphabet =  observedChar, transition= transition, emission= emission)
     b = j.backtracking()
-    sys.stdout.write(' '.join(map(str, b[::-1])))
+    sys.stdout.write(' '.join(map(str, b[::-1])) + '\n')
 
 if __name__ == "__main__":
     main()

@@ -28,18 +28,18 @@ class RosalindParse(object):
         readInput = infile.readlines()
         numIteration = int(readInput[0].strip())
         observedSeq = readInput[2].strip()
-        observedAlphabet = readInput[4].strip().split('\t')
-        states = readInput[6].strip().split('\t')
+        observedAlphabet = readInput[4].strip().split()
+        states = readInput[6].strip().split()
 
         transition = []
         for i in readInput[9:9 + len(states)]:
-            transition.append(i.strip().split('\t')[1:])
+            transition.append(i.strip().split()[1:])
         transition = np.asanyarray(transition)
         transition = transition.astype(np.float)
 
         emission = []
         for i in readInput[9 + len(states) + 2:]:
-            emission.append(i.strip().split('\t')[1:])
+            emission.append(i.strip().split()[1:])
         emission = np.asanyarray(emission)
 
         emission = emission.astype(np.float)

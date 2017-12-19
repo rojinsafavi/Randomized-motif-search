@@ -22,7 +22,7 @@ class RosalindParse(object):
         readInput = infile.readlines()
         theta = float(readInput[0].strip()) #extracting theta
         observations = [x.strip() for x in readInput[4:]] # the observed sequence
-        observedChar = readInput[2].strip().split('\t')# the observed characters
+        observedChar = readInput[2].strip().split()# the observed characters
         return theta, observations, observedChar
 
 class HmmProfile(object):
@@ -219,6 +219,21 @@ class HmmProfile(object):
                         emission[wq][j] = float(ll/ss)
         return emission
 
+    def columnLabel(self):
+        '''Constructing the emission backbone, dict of dic.
+        Returns:
+            the emission backbone, with dict of dict structure'''
+        insertColumns = self.belowTheta() # a list of column indices that must be considered as insertion
+        x = []
+        x.append('S')
+        x.append('I0')
+        for i in range(1, len(self.observations[0])-len(self.insertColumns) +1 ):
+            x.append('M' + str(i))
+            x.append('D' + str(i))
+            x.append('I' + str(i))
+        x.append('E')
+        return x
+
 class OutputFormat(object):
     '''Parsing rosaling output format.
     Attributes:
@@ -228,18 +243,19 @@ class OutputFormat(object):
     Methods:
         outputParsing - STDOUT the output
      '''
-    def __init__(self, transition, emission,observedChar):
+    def __init__(self, transition, emission,observedChar, columns):
         self.transition = transition
         self.emission = emission
         self.observedChar = observedChar
+        self.columns = columns
 
     def outputParsing(self):
         '''STDOUT the output'''
-        sys.stdout.write("\t" + '\t'.join(map(str, self.transition['D1'].keys())) + "\n")
-        for key, values in self.transition.items():
-            values = list(values.values())
+        sys.stdout.write("\t" + '\t'.join(map(str, self.columns)) + "\n")
+        for key in self.columns:
             sys.stdout.write(key)
-            for element in values:
+            for insideKey in self.columns:
+                element = self.transition[key][insideKey]
                 if element == 0:
                     sys.stdout.write('\t' + str(element))
                 else:
@@ -250,10 +266,10 @@ class OutputFormat(object):
 
         sys.stdout.write("\t" + '\t'.join(map(str, self.observedChar)) + "\n")
 
-        for key, values in self.emission.items():
-            values = list(values.values())
+        for key in self.columns:
             sys.stdout.write(key)
-            for element in values:
+            for insideKey in self.observedChar:
+                element = self.emission[key][insideKey]
                 if element == 0:
                     sys.stdout.write('\t' + str(element))
                 else:
@@ -266,7 +282,7 @@ def main():
     fr = RosalindParse(sys.stdin)
     theta, observations, observedChar = fr.rosalidParse()
     h = HmmProfile(theta, observations, observedChar)
-    outputInit = OutputFormat(transition = h.transitionProb(), emission = h.emissionProb(), observedChar = observedChar)
+    outputInit = OutputFormat(transition = h.transitionProb(), emission = h.emissionProb(), observedChar = observedChar, columns= h.columnLabel())
     outputInit.outputParsing()
 if __name__ == "__main__":
     main()
